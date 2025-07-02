@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart CCTV Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Smart CCTV Control Panel</h1>
+        
+        <div class="row">
+            <!-- Video Feed -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Live Camera Feed
+                    </div>
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('video_feed') }}" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        System Controls
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-lg w-100 mb-2 
+                            {% if system_state.recording %}btn-danger{% else %}btn-outline-danger{% endif %}" 
+                            onclick="toggleControl('toggle_recording')">
+                            <i class="fas fa-video"></i> 
+                            {% if system_state.recording %}Stop Recording{% else %}Start Recording{% endif %}
+                        </button>
+
+                        <button class="btn btn-lg w-100 mb-2 
+                            {% if system_state.fire_detection %}btn-warning{% else %}btn-outline-warning{% endif %}" 
+                            onclick="toggleControl('toggle_fire')">
+                            <i class="fas fa-fire"></i> 
+                            {% if system_state.fire_detection %}Disable Fire Detection{% else %}Enable Fire Detection{% endif %}
+                        </button>
+
+                        <button class="btn btn-lg w-100 mb-2 
+                            {% if system_state.object_detection %}btn-info{% else %}btn-outline-info{% endif %}" 
+                            onclick="toggleControl('toggle_object')">
+                            <i class="fas fa-search"></i> 
+                            {% if system_state.object_detection %}Disable Object Detection{% else %}Enable Object Detection{% endif %}
+                        </button>
+
+                        <button class="btn btn-lg w-100 mb-2 
+                            {% if system_state.live_monitoring %}btn-dark{% else %}btn-outline-dark{% endif %}" 
+                            onclick="toggleControl('toggle_monitoring')">
+                            <i class="fas fa-eye"></i> 
+                            {% if system_state.live_monitoring %}Stop Live Monitoring{% else %}Start Live Monitoring{% endif %}
+                        </button>
+
+                        <button class="btn btn-lg w-100 btn-secondary" 
+                                onclick="toggleControl('exit')">
+                            <i class="fas fa-power-off"></i> Exit System
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alerts -->
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        Security Alerts
+                    </div>
+                    <div class="card-body alert-panel" id="alertPanel">
+                        {% for alert in system_state.alerts %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-bell"></i> {{ alert }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleControl(command) {
+            fetch(`/control/${command}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update button states
+                    document.location.reload();
+                });
+        }
+    </script>
+</body>
+</html>
